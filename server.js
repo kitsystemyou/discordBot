@@ -1,7 +1,7 @@
 const http = require('http');
 const querystring = require('querystring');
 const discord = require('discord.js');
-const speech = require('lib/speech.js');
+const speech = require('./lib/speech.js');
 const client = new discord.Client();
 
 http.createServer(function(req, res){
