@@ -62,7 +62,7 @@ client.on('message', message =>{
 
     const cron = args[0].replace(/-/g, " ")
     const text = args.slice(1).join(" ")
-    const is_valid_cron = await cronCheck.isValidCron(cron)
+    const is_valid_cron = await cronCheck.isValidCron(cron, {alias: true})
 
     if(is_valid_cron){
         await reminder.add(message.channel.id, cron, text)
