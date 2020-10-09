@@ -57,7 +57,7 @@ client.on('message', message =>{
   }
 
   // リマインダー登録
-  command.ifStartWith(message.content, config.reminder_create_prefix, async args => {
+  command.ifStartWith(message.content, config.command_prefix.reminder_create, async args => {
     if(args.length <= 1) throw "Invalid args."
 
     const cron = args[0].replace(/-/g, " ")
@@ -66,13 +66,13 @@ client.on('message', message =>{
 
     if(is_valid_cron){
         await reminder.add(message.channel.id, cron, text)
-        await speech.reply(message, config.reminder_create_success_message)
+        await speech.reply(message, config.messages.reminder_create_success)
     } else throw "Invalid cron syntax."
   }).catch(err => { erorrHandler(message, err) })
 
   // リマインダー取得
-  command.ifStartWith(message.content, config.reminder_get_prefix, async args => {
-    await speech.msg(message.channel.id, config.reminder_get_result_message)
+  command.ifStartWith(message.content, config.command_prefix.reminder_get, async args => {
+    await speech.msg(message.channel.id, config.messages.reminder_get_result)
 
     const reminders = await reminder.get()
     speech.reply(message, {embed: {
@@ -82,17 +82,17 @@ client.on('message', message =>{
   }).catch(err => { erorrHandler(message, err) })
 
   // リマインダー削除
-  command.ifStartWith(message.content, config.reminder_delete_prefix, async args => {
+  command.ifStartWith(message.content, config.command_prefix.reminder_delete, async args => {
     const id = args[0]
     const deleted_count = await reminder.delete(id)
-    return speech.reply(message, deleted_count >= 1 ? config.reminder_delete_success_message : config.reject_message)
+    return speech.reply(message, deleted_count >= 1 ? config.messages.reminder_delete_success : config.messages.reject)
   }).catch(err => { erorrHandler(message, err) })
 
   // ヘルプ
-  command.ifStartWith(message.content, config.help_prefix, async args => {
+  command.ifStartWith(message.content, config.command_prefix.help, async args => {
     return speech.reply(message, {embed: {
         color: 0x00e191,
-        description: config.help_message.join("\n")
+        description: config.messages.help.join("\n")
     }})
   }).catch(err => { erorrHandler(message, err) })
 });
@@ -107,13 +107,13 @@ function erorrHandler(message, err) {
 
   switch(err) {
     case "Invalid args.":
-      speech.msg(message.channel.id, config.invalid_arg_message)
+      speech.msg(message.channel.id, config.messages.invalid_arg)
       break
     case "Invalid cron syntax.":
-      speech.msg(message.channel.id, config.invalid_cron_syntax_message)
+      speech.msg(message.channel.id, config.messages.invalid_cron_syntax)
       break
     default:
-      speech.msg(message.channel.id, config.error_message)
+      speech.msg(message.channel.id, config.messages.error)
       speech.reply(message, {embed: {
           color: 0xff0000,
           description: err.toString()
