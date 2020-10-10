@@ -75,7 +75,7 @@ client.on('message', message =>{
     await speech.msg(message.channel.id, config.messages.reminder_get_result)
 
     const reminders = await reminder.get()
-    speech.reply(message, {
+    return speech.embedMsg(message.channel.id, {
         color: config.color.safe,
         description: JSON.stringify(reminders, null, "　")
     })
@@ -90,7 +90,7 @@ client.on('message', message =>{
 
   // ヘルプ
   command.ifStartWith(message.content, config.command_prefix.help, async args => {
-    return speech.reply(message, {
+    return speech.embedMsg(message.channel.id, {
         color: config.color.safe,
         description: config.messages.help.join("\n")
     })
