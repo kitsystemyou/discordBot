@@ -5,10 +5,9 @@ const client = new discord.Client();
 const config = require("./config.json")
 const command = require("./lib/command.js")
 const speech = new (require('./lib/speech.js'))(client)
-const reminder = new (require("./lib/reminder"))(client)
+const reminder = new (require("./lib/reminder"))(client, error_handler=errorHandler)
 const cronCheck = require('cron-validator');
 
-reminder.syncDB()
 
 http.createServer(function(req, res){
   if (req.method == 'POST'){
@@ -40,6 +39,7 @@ http.createServer(function(req, res){
 client.on('ready', message =>{
   console.log('Bot準備完了～');
   client.user.setPresence({ game: { name: 'げーむ' } });
+  reminder.syncDB()
 });
 
 client.on('message', message =>{
@@ -61,14 +61,14 @@ client.on('message', message =>{
     if(args.length <= 1) throw "Invalid args."
 
     const cron = args[0].replace(/-/g, " ")
-    const text = args.slice(1).join(" ")
+    const text = args.slice(1).join(" ").replace(/\\n/g, "\n")
     const is_valid_cron = await cronCheck.isValidCron(cron, {alias: true})
 
     if(is_valid_cron){
-        await reminder.add(message.channel.id, cron, text)
+        await reminder.add(message.channel.id, cron, text, message.author.id)
         await speech.reply(message, config.messages.reminder_create_success)
     } else throw "Invalid cron syntax."
-  }).catch(err => { erorrHandler(message, err) })
+  }).catch(err => { errorHandler(message.channel.id, err) })
 
   // リマインダー取得
   command.ifStartWith(message.content, config.command_prefix.reminder_get, async args => {
@@ -79,14 +79,14 @@ client.on('message', message =>{
         color: config.color.safe,
         description: JSON.stringify(reminders, null, "　")
     }})
-  }).catch(err => { erorrHandler(message, err) })
+  }).catch(err => { errorHandler(message.channel.id, err) })
 
   // リマインダー削除
   command.ifStartWith(message.content, config.command_prefix.reminder_delete, async args => {
     const id = args[0]
     const deleted_count = await reminder.delete(id)
     return speech.reply(message, deleted_count >= 1 ? config.messages.reminder_delete_success : config.messages.reject)
-  }).catch(err => { erorrHandler(message, err) })
+  }).catch(err => { errorHandler(message.channel.id, err) })
 
   // ヘルプ
   command.ifStartWith(message.content, config.command_prefix.help, async args => {
@@ -94,7 +94,7 @@ client.on('message', message =>{
         color: config.color.safe,
         description: config.messages.help.join("\n")
     }})
-  }).catch(err => { erorrHandler(message, err) })
+  }).catch(err => { errorHandler(message.channel.id, err) })
 });
 
 if(process.env.DISCORD_BOT_TOKEN == undefined){
@@ -102,19 +102,17 @@ if(process.env.DISCORD_BOT_TOKEN == undefined){
  process.exit(0);
 }
 
-function erorrHandler(message, err) {
-  console.error(err)
-
+function errorHandler(channel_id, err) {
   switch(err) {
     case "Invalid args.":
-      speech.msg(message.channel.id, config.messages.invalid_arg)
+      speech.msg(channel_id, config.messages.invalid_arg)
       break
     case "Invalid cron syntax.":
-      speech.msg(message.channel.id, config.messages.invalid_cron_syntax)
+      speech.msg(channel_id, config.messages.invalid_cron_syntax)
       break
     default:
-      speech.msg(message.channel.id, config.messages.error)
-      speech.reply(message, {embed: {
+      speech.msg(channel_id, config.messages.error)
+      speech.embedMsg(channel_id, {embed: {
           color: config.color.danger,
           description: err.toString()
       }})
