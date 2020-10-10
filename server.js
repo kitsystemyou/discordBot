@@ -76,7 +76,7 @@ client.on('message', message =>{
 
     const reminders = await reminder.get()
     speech.reply(message, {embed: {
-        color: 0x00e191,
+        color: config.color.safe,
         description: JSON.stringify(reminders, null, "　")
     }})
   }).catch(err => { erorrHandler(message, err) })
@@ -91,7 +91,7 @@ client.on('message', message =>{
   // ヘルプ
   command.ifStartWith(message.content, config.command_prefix.help, async args => {
     return speech.reply(message, {embed: {
-        color: 0x00e191,
+        color: config.color.safe,
         description: config.messages.help.join("\n")
     }})
   }).catch(err => { erorrHandler(message, err) })
@@ -115,7 +115,7 @@ function erorrHandler(message, err) {
     default:
       speech.msg(message.channel.id, config.messages.error)
       speech.reply(message, {embed: {
-          color: 0xff0000,
+          color: config.color.danger,
           description: err.toString()
       }})
   }
