@@ -1,5 +1,10 @@
 {
     "reminder_limit": 10,
+    "color": {
+      "safe": 57745,
+      "danger": 16711680,
+      "reminder": 7506394
+    },
     "data_path": {
       "reminder": ".data/reminder"
     },
