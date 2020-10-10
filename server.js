@@ -75,10 +75,10 @@ client.on('message', message =>{
     await speech.msg(message.channel.id, config.messages.reminder_get_result)
 
     const reminders = await reminder.get()
-    speech.reply(message, {embed: {
+    speech.reply(message, {
         color: config.color.safe,
         description: JSON.stringify(reminders, null, "　")
-    }})
+    })
   }).catch(err => { errorHandler(message.channel.id, err) })
 
   // リマインダー削除
@@ -90,10 +90,10 @@ client.on('message', message =>{
 
   // ヘルプ
   command.ifStartWith(message.content, config.command_prefix.help, async args => {
-    return speech.reply(message, {embed: {
+    return speech.reply(message, {
         color: config.color.safe,
         description: config.messages.help.join("\n")
-    }})
+    })
   }).catch(err => { errorHandler(message.channel.id, err) })
 });
 
@@ -112,10 +112,10 @@ function errorHandler(channel_id, err) {
       break
     default:
       speech.msg(channel_id, config.messages.error)
-      speech.embedMsg(channel_id, {embed: {
+      speech.embedMsg(channel_id, {
           color: config.color.danger,
           description: err.toString()
-      }})
+      })
   }
 }
 
