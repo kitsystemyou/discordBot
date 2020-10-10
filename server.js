@@ -2,6 +2,13 @@ const http = require('http');
 const querystring = require('querystring');
 const discord = require('discord.js');
 const client = new discord.Client();
+const config = require("./config.json")
+const command = require("./lib/command.js")
+const speech = new (require('./lib/speech.js'))(client)
+const reminder = new (require("./lib/reminder"))(client)
+const cronCheck = require('cron-validator');
+
+reminder.syncDB()
 
 http.createServer(function(req, res){
   if (req.method == 'POST'){
@@ -40,14 +47,54 @@ client.on('message', message =>{
     return;
   }
   if(message.isMemberMentioned(client.user)){
-    sendReply(message, "呼びましたか？");
+    speech.reply(message, "呼びましたか？");
     return;
   }
   if (message.content.match(/にゃ～ん|にゃーん/)){
     let text = "にゃ～ん";
-    sendMsg(message.channel.id, text);
+    speech.msg(message.channel.id, text);
     return;
   }
+
+  // リマインダー登録
+  command.ifStartWith(message.content, config.command_prefix.reminder_create, async args => {
+    if(args.length <= 1) throw "Invalid args."
+
+    const cron = args[0].replace(/-/g, " ")
+    const text = args.slice(1).join(" ")
+    const is_valid_cron = await cronCheck.isValidCron(cron, {alias: true})
+
+    if(is_valid_cron){
+        await reminder.add(message.channel.id, cron, text)
+        await speech.reply(message, config.messages.reminder_create_success)
+    } else throw "Invalid cron syntax."
+  }).catch(err => { erorrHandler(message, err) })
+
+  // リマインダー取得
+  command.ifStartWith(message.content, config.command_prefix.reminder_get, async args => {
+    await speech.msg(message.channel.id, config.messages.reminder_get_result)
+
+    const reminders = await reminder.get()
+    speech.reply(message, {embed: {
+        color: 0x00e191,
+        description: JSON.stringify(reminders, null, "　")
+    }})
+  }).catch(err => { erorrHandler(message, err) })
+
+  // リマインダー削除
+  command.ifStartWith(message.content, config.command_prefix.reminder_delete, async args => {
+    const id = args[0]
+    const deleted_count = await reminder.delete(id)
+    return speech.reply(message, deleted_count >= 1 ? config.messages.reminder_delete_success : config.messages.reject)
+  }).catch(err => { erorrHandler(message, err) })
+
+  // ヘルプ
+  command.ifStartWith(message.content, config.command_prefix.help, async args => {
+    return speech.reply(message, {embed: {
+        color: 0x00e191,
+        description: config.messages.help.join("\n")
+    }})
+  }).catch(err => { erorrHandler(message, err) })
 });
 
 if(process.env.DISCORD_BOT_TOKEN == undefined){
@@ -55,16 +102,23 @@ if(process.env.DISCORD_BOT_TOKEN == undefined){
  process.exit(0);
 }
 
+function erorrHandler(message, err) {
+  console.error(err)
+
+  switch(err) {
+    case "Invalid args.":
+      speech.msg(message.channel.id, config.messages.invalid_arg)
+      break
+    case "Invalid cron syntax.":
+      speech.msg(message.channel.id, config.messages.invalid_cron_syntax)
+      break
+    default:
+      speech.msg(message.channel.id, config.messages.error)
+      speech.reply(message, {embed: {
+          color: 0xff0000,
+          description: err.toString()
+      }})
+  }
+}
+
 client.login( process.env.DISCORD_BOT_TOKEN );
-
-function sendReply(message, text){
-  message.reply(text)
-    .then(console.log("リプライ送信: " + text))
-    .catch(console.error);
-}
-
-function sendMsg(channelId, text, option={}){
-  client.channels.get(channelId).send(text, option)
-    .then(console.log("メッセージ送信: " + text + JSON.stringify(option)))
-    .catch(console.error);
-}
