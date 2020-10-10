@@ -145,6 +145,8 @@ if(process.env.DISCORD_BOT_TOKEN == undefined){
 }
 
 function errorHandler(channel_id, err) {
+  console.error(err)
+
   switch(err) {
     case "Invalid args.":
       speech.msg(channel_id, config.messages.invalid_arg)
@@ -153,10 +155,9 @@ function errorHandler(channel_id, err) {
       speech.msg(channel_id, config.messages.invalid_cron_syntax)
       break
     default:
-      speech.msg(channel_id, config.messages.error)
       speech.embedMsg(channel_id, {
           color: config.color.danger,
-          description: err.toString()
+          description: JSON.stringify(err)
       })
   }
 }
