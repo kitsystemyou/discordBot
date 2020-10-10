@@ -1,17 +1,23 @@
 {
     "reminder_limit": 10,
+    "twitter_pipeline_limit": 10,
     "color": {
       "safe": 57745,
       "danger": 16711680,
-      "reminder": 7506394
+      "reminder": 7506394,
+      "twitter": 44270
     },
     "data_path": {
-      "reminder": ".data/reminder"
+      "reminder": ".data/reminder",
+      "twitter_pipeline": ".data/twitter"
     },
     "command_prefix": {
       "reminder_delete": "わすれて",
       "reminder_create": "おぼえて",
       "reminder_get": "おもいだして",
+      "twitter_pipeline_create": "ついーとみてて",
+      "twitter_pipeline_delete": "ついーとわすれて",
+      "twitter_pipeline_get": "ついーとみてる？",
       "help": "なにができる？"
     },
     "messages": {
@@ -19,6 +25,9 @@
       "reminder_create_success": "おぼえた！",
       "reminder_limit": "もうおぼえられない...",
       "reminder_get_result": "こんなかんじー",
+      "twitter_pipeline_create_success": "みてる！",
+      "twitter_pipeline_delete_success": "わすれた！",
+      "twitter_pipeline_retry": "ちょっとはんえいまでじかんかかる！",
       "error": "ごめんなさい ちょっとわかんない💦",
       "reject": "ごめんむり...",
       "invalid_arg": "ひきすうがおかしいような...",
@@ -32,7 +41,11 @@
         "　おもいだして: リマインダ一覧",
         "　おぼえて <cron> <text> : リマインダ作成",
         "　　（ex. おぼえて 00-13-\\*-\\*-sat Hello-world → 毎週土曜13時にHello-World）",
-        "　わすれて <id>: リマインダ削除（id: リマインダ一覧で確認）"
+        "　わすれて <id>: リマインダ削除（id: リマインダ一覧で確認）",
+        "\n【Twitter連携】",
+        "　ついーとみてる？: 連携アカウント一覧",
+        "　ついーとみてて @<twitter-id>: 指定したアカウントのツイートをチャンネルに流す",
+        "　ついーとわすれて @<twitter-id>: 指定したアカウントとの連携を解除"
       ]
     }
 }

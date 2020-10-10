@@ -5,6 +5,7 @@ const client = new discord.Client();
 const config = require("./config.json")
 const command = require("./lib/command.js")
 const speech = new (require('./lib/speech.js'))(client)
+const twitterPipeline = new (require('./lib/twitter-pipeline.js'))(client, error_handler=errorHandler)
 const reminder = new (require("./lib/reminder"))(client, error_handler=errorHandler)
 const cronCheck = require('cron-validator');
 
@@ -36,10 +37,11 @@ http.createServer(function(req, res){
   }
 }).listen(3000);
 
-client.on('ready', message =>{
+client.on('ready', async message =>{
   console.log('Bot準備完了～');
   client.user.setPresence({ game: { name: 'げーむ' } });
   reminder.syncDB()
+  twitterPipeline.syncDB()
 });
 
 client.on('message', message =>{
@@ -86,6 +88,46 @@ client.on('message', message =>{
     const id = args[0]
     const deleted_count = await reminder.delete(id)
     return speech.reply(message, deleted_count >= 1 ? config.messages.reminder_delete_success : config.messages.reject)
+  }).catch(err => { errorHandler(message.channel.id, err) })
+
+  // Twitterパイプライン作成
+  command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_create, async args => {
+    if(args.length <= 0) throw "Invalid args."
+
+    const twitter_user_screen_name = args[0].replace("@", "")
+    const twitter_user = await twitterPipeline.getUserFromScreenName(twitter_user_screen_name)
+    await twitterPipeline.add(message.channel.id, twitter_user.id_str)
+    await speech.msg(message.channel.id, config.messages.twitter_pipeline_create_success)
+  }).catch(err => { errorHandler(message.channel.id, err) })
+
+  // Twitterパイプライン取得
+  command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_get, async args => {
+    const userChannelNames = await twitterPipeline.getUserChannelNameMap()
+    let pipeline_fields = []
+
+    Object.keys(userChannelNames).forEach(user_id => {
+      pipeline_fields.push({
+        name: `@${userChannelNames[user_id].screen_name}`,
+        value: `
+          to #${userChannelNames[user_id].channel_name}
+        `
+      })
+    })
+
+    speech.embedMsg(message.channel.id, {
+      color: config.color.twitter,
+      fields: pipeline_fields
+    })
+  }).catch(err => { errorHandler(message.channel.id, err) })
+
+  // Twitterパイプライン削除
+  command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_delete, async args => {
+    if(args.length <= 0) throw "Invalid args."
+
+    const twitter_user_screen_name = args[0].replace("@", "")
+    const twitter_user = await twitterPipeline.getUserFromScreenName(twitter_user_screen_name)
+    await twitterPipeline.delete(twitter_user.id_str)
+    await speech.msg(message.channel.id, config.messages.twitter_pipeline_delete_success)
   }).catch(err => { errorHandler(message.channel.id, err) })
 
   // ヘルプ
