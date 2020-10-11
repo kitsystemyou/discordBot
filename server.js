@@ -140,6 +140,15 @@ if(process.env.DISCORD_BOT_TOKEN == undefined){
  process.exit(0);
 }
 
+if(process.env.TWITTER_CONSUMER_KEY == undefined
+    || process.env.TWITTER_CONSUMER_SECRET == undefined
+    || process.env.TWITTER_ACCESS_TOKEN_KEY == undefined
+    || process.env.TWITTER_ACCESS_TOKEN_SECRET == undefined
+  ) {
+  console.log('TWITTER_TOKENが設定されていません。');
+  process.exit(0);
+}
+
 function errorHandler(channel_id, err) {
   console.error(err)
 
