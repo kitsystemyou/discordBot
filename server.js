@@ -48,10 +48,6 @@ client.on('message', message =>{
   if (message.author.id == client.user.id || message.author.bot){
     return;
   }
-  if(message.isMemberMentioned(client.user)){
-    speech.reply(message, "呼びましたか？");
-    return;
-  }
   if (message.content.match(/にゃ～ん|にゃーん/)){
     let text = "にゃ～ん";
     speech.msg(message.channel.id, text);
