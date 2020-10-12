@@ -11,10 +11,14 @@
       "reminder": ".data/reminder",
       "twitter_pipeline": ".data/twitter"
     },
+    "reaction": {
+      "reminder": "⌚"
+    },
     "command_prefix": {
       "reminder_delete": "わすれて",
       "reminder_create": "おぼえて",
       "reminder_get": "おもいだして",
+      "reminder_set_cron": "くーろん",
       "twitter_pipeline_create": "ついーとみてて",
       "twitter_pipeline_delete": "ついーとわすれて",
       "twitter_pipeline_get": "ついーとみてる？",
@@ -25,6 +29,8 @@
       "reminder_create_success": "おぼえた！",
       "reminder_limit": "もうおぼえられない...",
       "reminder_get_result": "こんなかんじー",
+      "reminder_require_cron": "くーろんとうろくしてねー",
+      "reminder_require_content": "りまいんだーとうろくして！！",
       "twitter_pipeline_create_success": "みてる！",
       "twitter_pipeline_delete_success": "わすれた！",
       "twitter_pipeline_retry": "ちょっとはんえいまでじかんかかる！",
