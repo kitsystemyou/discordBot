@@ -72,10 +72,24 @@ client.on('message', message =>{
   command.ifStartWith(message.content, config.command_prefix.reminder_get, async args => {
     await speech.msg(message.channel.id, config.messages.reminder_get_result)
 
-    const reminders = await reminder.get()
+    let result_fields = []
+    const reminders = await reminder.getWithName()
+
+    for(let reminder of reminders) {
+      const text = reminder.text.replace("@", "") // 通知を飛ばさないようメンションは無効化
+      result_fields.push({
+        name: `ID: ${reminder._id}`,
+        value: `
+        cron: ${reminder.cron}
+        author: ${reminder.author_name}
+        text: ${text}
+        `
+      })
+    }
+
     return speech.embedMsg(message.channel.id, {
         color: config.color.safe,
-        description: JSON.stringify(reminders, null, "　")
+        fields: result_fields
     })
   }).catch(err => { errorHandler(message.channel.id, err) })
 
