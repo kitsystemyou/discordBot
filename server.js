@@ -194,6 +194,9 @@ function errorHandler(channel_id, err) {
     case "Invalid cron syntax.":
       speech.msg(channel_id, config.messages.invalid_cron_syntax)
       break
+    case "Required remind content.":
+      speech.msg(channel_id, config.messages.reminder_require_content)
+      break
     default:
       speech.embedMsg(channel_id, {
           color: config.color.danger,
