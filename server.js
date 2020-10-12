@@ -71,29 +71,26 @@ client.on('message', message =>{
   // リマインダー取得
   command.ifStartWith(message.content, config.command_prefix.reminder_get, async args => {
     await speech.msg(message.channel.id, config.messages.reminder_get_result)
+    const reminders = await reminder.get()
 
-    let result_fields = []
-    const reminders = await reminder.getWithName()
-    const text_indent = "　"
-
-    for(let reminder of reminders) {
+    return (reminders.forEach(reminder => {
       // 通知を飛ばさないようメンションは無効化
-      const text = reminder.text.replace(/@/g, "").replace(/\n/g, "\n" + text_indent)
-      result_fields.push({
-        name: `ID: ${reminder._id}`,
-        value: `
-        Cron: ${reminder.cron}
-        Author: ${reminder.author_name}
-        Text:
-        ${text_indent}${text}
-        `
-      })
-    }
+      const text = reminder.text.replace(/@/g, "")
+      const channel = client.channels.get(reminder.channel_id)
+      const author = client.users.get(reminder.author_id)
 
-    return speech.embedMsg(message.channel.id, {
-        color: config.color.reminder,
-        fields: result_fields
-    })
+      speech.embedMsg(reminder.channel_id, {
+          color: config.color.reminder,
+          description: text,
+          author: {
+              name: author.username,
+              icon_url: author.avatarURL
+          },
+          footer: {
+              text: `ID: ${reminder._id}\nCron: ${reminder.cron}\nChannel: #${channel.name}`
+          }
+      })
+    }))
   }).catch(err => { errorHandler(message.channel.id, err) })
 
   // リマインダー削除
