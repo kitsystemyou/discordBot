@@ -74,21 +74,24 @@ client.on('message', message =>{
 
     let result_fields = []
     const reminders = await reminder.getWithName()
+    const text_indent = "　"
 
     for(let reminder of reminders) {
-      const text = reminder.text.replace("@", "") // 通知を飛ばさないようメンションは無効化
+      // 通知を飛ばさないようメンションは無効化
+      const text = reminder.text.replace(/@/g, "").replace(/\n/g, "\n" + text_indent)
       result_fields.push({
         name: `ID: ${reminder._id}`,
         value: `
-        cron: ${reminder.cron}
-        author: ${reminder.author_name}
-        text: ${text}
+        Cron: ${reminder.cron}
+        Author: ${reminder.author_name}
+        Text:
+        ${text_indent}${text}
         `
       })
     }
 
     return speech.embedMsg(message.channel.id, {
-        color: config.color.safe,
+        color: config.color.reminder,
         fields: result_fields
     })
   }).catch(err => { errorHandler(message.channel.id, err) })
