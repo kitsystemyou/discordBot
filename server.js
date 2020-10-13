@@ -37,6 +37,9 @@ http.createServer(function(req, res){
   }
 }).listen(3000);
 
+for(const env of config.require_envs)
+  if(!process.env[env]) throw `Env not found: ${env}.`
+
 client.on('ready', async message =>{
   console.log('Bot準備完了～');
   client.user.setPresence({ game: { name: 'げーむ' } });
