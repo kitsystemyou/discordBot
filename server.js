@@ -89,7 +89,7 @@ client.on('message', message =>{
   // リマインダークーロン登録
   command.ifStartWith(message.content, config.command_prefix.reminder_set_cron, async args => {
     if(args.length <= 0) throw "Invalid args."
-    else if(reminder.remind_content_registry == null) throw "Required remind content."
+    else if(reminder.remind_content_registry == null) throw "Insufficient remind message"
     else if (!(await cronCheck.isValidCron(args[0].replace(/-/g, " "), {alias: true}))) throw "Invalid cron syntax."
     else {
       const cron = args[0].replace(/-/g, " ")
@@ -194,7 +194,7 @@ function errorHandler(channel_id, err) {
     case "Invalid cron syntax.":
       speech.msg(channel_id, config.messages.invalid_cron_syntax)
       break
-    case "Required remind content.":
+    case "Insufficient remind message":
       speech.msg(channel_id, config.messages.reminder_require_content)
       break
     default:
