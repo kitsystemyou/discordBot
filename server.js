@@ -44,7 +44,7 @@ client.on('ready', async message =>{
   twitterPipeline.syncDB()
 });
 
-client.on('message', message =>{
+client.on('message', async message =>{
   if (message.author.id == client.user.id || message.author.bot){
     return;
   }
@@ -165,7 +165,40 @@ client.on('message', message =>{
         description: config.messages.help.join("\n")
     })
   }).catch(err => { errorHandler(message.channel.id, err) })
-});
+
+  // ミュートの人の発言
+  if(message.member.selfMute) {
+    try{
+      const channel = message.member.voiceChannel;
+      console.log(channel)
+      const text = message
+          .content
+          .replace(/https?:\/\/\S+/g, '')
+          .replace(/<a?:.*?:\d+>/g, '') // カスタム絵文字を除去
+          .slice(0, config.text_to_speech_length_limit);
+
+      if(!text) return 
+      if(channel.members.array().length < 1) return
+
+      // 発言者の参加チャンネルへ移動
+      const current_connection = client.voice.connections.get(process.env.DISCORD_GUILD_ID);
+      const should_move = !current_connection || current_connection.channel.id !== channel.id;
+      const conn = should_move ? await channel.join() : current_connection;
+
+      conn.playStream(await speech.textToAudioStream(text), {highWaterMark: 6, bitrate: 'auto'});
+    }catch(err) {
+      errorHandler(message.channel.id, err)
+    }
+  }
+})
+
+// voiceチャンネルに一人だけになったら抜ける
+client.on('voiceStateUpdate', (oldState, newState) => {
+  const conn = client.voice.connections.get(process.env.DISCORD_GUILD_ID);
+  if(conn && conn.channel && conn.channel.members.array().length < 2) {
+    conn.disconnect();
+  }
+})
 
 // 特定のリアクションが付いたら
 client.on('messageReactionAdd', reaction => {

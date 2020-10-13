@@ -2,6 +2,7 @@
     "timezone": "Asia/Tokyo",
     "reminder_limit": 10,
     "twitter_pipeline_limit": 10,
+    "text_to_speech_length_limit": 50,
     "color": {
       "safe": 57745,
       "danger": 16711680,
