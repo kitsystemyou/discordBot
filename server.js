@@ -154,7 +154,7 @@ client.on('message', message =>{
 });
 
 // 特定のリアクションが付いたら
-client.on('messageReactionAdd', (reaction, user) => {
+client.on('messageReactionAdd', reaction => {
 
   switch(reaction._emoji.name) {
     case config.reaction.reminder:
