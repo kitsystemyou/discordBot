@@ -86,6 +86,24 @@ client.on('message', message =>{
     return speech.reply(message, deleted_count >= 1 ? config.messages.reminder_delete_success : config.messages.reject)
   }).catch(err => { errorHandler(message.channel.id, err) })
 
+  // リマインダークーロン登録
+  command.ifStartWith(message.content, config.command_prefix.reminder_set_cron, async args => {
+    if(args.length <= 0) throw "Invalid args."
+    else if(reminder.remind_content_registry == null) throw "Insufficient remind message"
+    else if (!(await cronCheck.isValidCron(args[0].replace(/-/g, " "), {alias: true}))) throw "Invalid cron syntax."
+    else {
+      const cron = args[0].replace(/-/g, " ")
+      const channel_id = reminder.remind_content_registry.channel_id
+      const text = reminder.remind_content_registry.text
+      const author_id = reminder.remind_content_registry.author_id
+
+      await reminder.add(channel_id, cron, text, author_id)
+      await speech.reply(message, config.messages.reminder_create_success)
+      
+      reminder.remind_content_registry = null
+    }
+  }).catch(err => { errorHandler(message.channel.id, err) })
+
   // Twitterパイプライン作成
   command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_create, async args => {
     if(args.length <= 0) throw "Invalid args."
@@ -135,6 +153,23 @@ client.on('message', message =>{
   }).catch(err => { errorHandler(message.channel.id, err) })
 });
 
+// 特定のリアクションが付いたら
+client.on('messageReactionAdd', reaction => {
+
+  switch(reaction._emoji.name) {
+    case config.reaction.reminder:
+      // メッセージの内容をレジストリに登録
+      reminder.remind_content_registry = {
+          channel_id: reaction.message.channel.id,
+          text: reaction.message.content,
+          author_id: reaction.message.author.id
+      }
+      speech.msg(reaction.message.channel.id, config.messages.reminder_require_cron)
+      break
+
+  }
+})
+
 if(process.env.DISCORD_BOT_TOKEN == undefined){
  console.log('DISCORD_BOT_TOKENが設定されていません。');
  process.exit(0);
@@ -158,6 +193,9 @@ function errorHandler(channel_id, err) {
       break
     case "Invalid cron syntax.":
       speech.msg(channel_id, config.messages.invalid_cron_syntax)
+      break
+    case "Insufficient remind message":
+      speech.msg(channel_id, config.messages.reminder_require_content)
       break
     default:
       speech.embedMsg(channel_id, {
