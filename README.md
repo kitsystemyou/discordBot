@@ -9,6 +9,9 @@ setting environment value `TWITTER_CONSUMER_KEY`, `TWITTER_CONSUMER_SECRET`, `TW
 1. Invite Yout discord bot accout to your discord server  
 https://discordjs.guide/preparations/adding-your-bot-to-servers.html#bot-invite-links
 
+1. If you set auto deploy for glitch  
+Set `PROJECTID`, `ACCESSTOKEN` at Setting -> secret
+
 ### Usage
 ```
 npm install
