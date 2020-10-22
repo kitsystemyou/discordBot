@@ -15,3 +15,11 @@ npm install
 npm install --save twitter
 npm start
 ```
+
+### Function
+
+#### Reminder
+Set reminder
+
+#### Watch certain twitter account
+Watch twitter account -> selected channel
