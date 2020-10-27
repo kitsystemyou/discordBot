@@ -79,7 +79,7 @@ client.on('message', message =>{
       const channel = client.channels.get(reminder.channel_id)
       const author = client.users.get(reminder.author_id)
 
-      speech.embedMsg(reminder.channel_id, {
+      speech.embedMsg(message.channel.id, {
           color: config.color.reminder,
           description: text,
           author: {
