@@ -2,6 +2,17 @@
     "timezone": "Asia/Tokyo",
     "reminder_limit": 10,
     "twitter_pipeline_limit": 10,
+    "text_to_speech_length_limit": 50,
+    "require_envs": [
+      "DISCORD_BOT_TOKEN", 
+      "DISCORD_GUILD_ID",
+      "TWITTER_CONSUMER_KEY", 
+      "TWITTER_CONSUMER_SECRET", 
+      "TWITTER_ACCESS_TOKEN_KEY", 
+      "TWITTER_ACCESS_TOKEN_SECRET",
+      "GOOGLE_CLIENT_EMAIL",
+      "GOOGLE_PRIVATE_KEY"
+    ],
     "color": {
       "safe": 57745,
       "danger": 16711680,
