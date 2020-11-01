@@ -59,10 +59,10 @@ client.on('message', async message =>{
 
   // リマインダー登録
   command.ifStartWith(message.content, config.command_prefix.reminder_create, async args => {
-    if(args.length <= 1) throw "Invalid args."
+    if(args.length <= 5) throw "Invalid args."
 
-    const cron = args[0].replace(/-/g, " ")
-    const text = args.slice(1).join(" ").replace(/\\n/g, "\n")
+    const cron = args.slice(0, 5).join(" ")
+    const text = args.slice(5).join(" ").replace(/\\n/g, "\n")
     const is_valid_cron = await cronCheck.isValidCron(cron, {alias: true})
 
     if(is_valid_cron){
@@ -105,11 +105,11 @@ client.on('message', async message =>{
 
   // リマインダークーロン登録
   command.ifStartWith(message.content, config.command_prefix.reminder_set_cron, async args => {
-    if(args.length <= 0) throw "Invalid args."
+    if(args.length <= 4) throw "Invalid args."
     else if(reminder.remind_content_registry == null) throw "Insufficient remind message"
-    else if (!(await cronCheck.isValidCron(args[0].replace(/-/g, " "), {alias: true}))) throw "Invalid cron syntax."
+    else if (!(await cronCheck.isValidCron(args.join(" ")), {alias: true})) throw "Invalid cron syntax."
     else {
-      const cron = args[0].replace(/-/g, " ")
+      const cron = args.join(" ")
       const channel_id = reminder.remind_content_registry.channel_id
       const text = reminder.remind_content_registry.text
       const author_id = reminder.remind_content_registry.author_id
