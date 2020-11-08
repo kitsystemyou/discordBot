@@ -125,22 +125,43 @@ client.on('message', async message =>{
   command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_create, async args => {
     if(args.length <= 0) throw "Invalid args."
 
-    const twitter_user_screen_name = args[0].replace("@", "")
-    const twitter_user = await twitterPipeline.getUserFromScreenName(twitter_user_screen_name)
-    await twitterPipeline.add(message.channel.id, twitter_user.id_str)
+    let track_content
+    let track_type
+
+    //ユーザ監視パイプラインの場合
+    if(args[0][0] === "@") {
+        const twitter_user_screen_name = args[0].replace("@", "")
+        const twitter_user = await twitterPipeline.getUserFromScreenName(twitter_user_screen_name)
+        track_content = twitter_user.id_str
+        track_type = "user"
+    }else{
+        track_content = args[0]
+        track_type = "word"
+    }
+
+    await twitterPipeline.add(message.channel.id, track_content, track_type)
     await speech.msg(message.channel.id, config.messages.twitter_pipeline_create_success)
   }).catch(err => { errorHandler(message.channel.id, err) })
 
   // Twitterパイプライン取得
   command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_get, async args => {
-    const userChannelNames = await twitterPipeline.getUserChannelNameMap()
+    const userNameChannelIdMap = await twitterPipeline.getUserNameChannelIdMap()
     let pipeline_fields = []
 
-    Object.keys(userChannelNames).forEach(user_id => {
+    Object.keys(userNameChannelIdMap).forEach(user_id => {
       pipeline_fields.push({
-        name: `@${userChannelNames[user_id].screen_name}`,
+        name: `@${userNameChannelIdMap[user_id].screen_name}`,
         value: `
-          to #${userChannelNames[user_id].channel_name}
+          to <#${userNameChannelIdMap[user_id].channel_id}>
+        `
+      })
+    })
+
+    Object.keys(twitterPipeline.word_channel_id_map).forEach(word => {
+      pipeline_fields.push({
+        name: `${word}`,
+        value: `
+          to <#${twitterPipeline.word_channel_id_map[word]}>
         `
       })
     })
@@ -155,9 +176,17 @@ client.on('message', async message =>{
   command.ifStartWith(message.content, config.command_prefix.twitter_pipeline_delete, async args => {
     if(args.length <= 0) throw "Invalid args."
 
-    const twitter_user_screen_name = args[0].replace("@", "")
-    const twitter_user = await twitterPipeline.getUserFromScreenName(twitter_user_screen_name)
-    await twitterPipeline.delete(twitter_user.id_str)
+    let track_content
+
+    if(args[0][0] == "@") {
+        const twitter_user_screen_name = args[0].replace("@", "")
+        const twitter_user = await twitterPipeline.getUserFromScreenName(twitter_user_screen_name)
+        track_content = twitter_user.id_str
+    }else{
+        track_content = args[0]
+    }
+
+    await twitterPipeline.delete(track_content)
     await speech.msg(message.channel.id, config.messages.twitter_pipeline_delete_success)
   }).catch(err => { errorHandler(message.channel.id, err) })
 
@@ -240,18 +269,21 @@ function errorHandler(channel_id, err) {
   switch(err) {
     case "Invalid args.":
       speech.msg(channel_id, config.messages.invalid_arg)
+        .catch(e => {console.error(e)})
       break
     case "Invalid cron syntax.":
       speech.msg(channel_id, config.messages.invalid_cron_syntax)
+        .catch(e => {console.error(e)})
       break
     case "Insufficient remind message":
       speech.msg(channel_id, config.messages.reminder_require_content)
+        .catch(e => {console.error(e)})
       break
     default:
       speech.embedMsg(channel_id, {
           color: config.color.danger,
           description: JSON.stringify(err)
-      })
+      }).catch(e => {console.error(e)})
   }
 }
 
