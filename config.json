@@ -34,6 +34,9 @@
       "twitter_pipeline_create": "ついーとみてて",
       "twitter_pipeline_delete": "ついーとわすれて",
       "twitter_pipeline_get": "ついーとみてる？",
+      "play_music_start": "うたって",
+      "play_music_loop_start": "ずっとうたって",
+      "play_music_end": "うたわないで",
       "help": "なにができる？"
     },
     "messages": {
@@ -46,6 +49,7 @@
       "twitter_pipeline_create_success": "みてる！",
       "twitter_pipeline_delete_success": "わすれた！",
       "twitter_pipeline_retry": "ちょっとはんえいまでじかんかかる！",
+      "play_music_invalid_youtube_url": "ようつべのURLおかしいような？",
       "error": "ごめんなさい ちょっとわかんない💦",
       "reject": "ごめんむり...",
       "invalid_arg": "ひきすうがおかしいような...",
@@ -66,7 +70,11 @@
         "　ついーとみてて @<twitter-id>: 指定したアカウントのツイートをチャンネルに流す",
         "　ついーとみてて 任意のワード: 指定したワードを含むツイートをチャンネルに流す",
         "　ついーとわすれて @<twitter-id>: 指定したアカウントとの連携を解除",
-        "　ついーとわすれて 任意のワード: 指定したワードのトラッキングを解除"
+        "　ついーとわすれて 任意のワード: 指定したワードのトラッキングを解除",
+        "\n【YouTube再生】",
+        "　うたって <YouTube Link>: 指定した動画の音声を再生",
+        "　ずっとうたって <YouTube Link>: 指定した動画の音声をループ再生",
+        "　うたわないで <YouTube Link>: 音声の再生をストップ"
       ]
     }
 }

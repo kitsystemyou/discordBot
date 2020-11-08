@@ -5,6 +5,8 @@ const client = new discord.Client();
 const config = require("./config.json")
 const command = require("./lib/command.js")
 const speech = new (require('./lib/speech.js'))(client)
+const ytdl = require("ytdl-core")
+const music = new (require('./lib/music.js'))()
 const twitterPipeline = new (require('./lib/twitter-pipeline.js'))(client, error_handler=errorHandler)
 const reminder = new (require("./lib/reminder"))(client, error_handler=errorHandler)
 const cronCheck = require('cron-validator');
@@ -56,6 +58,37 @@ client.on('message', async message =>{
     speech.msg(message.channel.id, text);
     return;
   }
+
+  // 音楽再生
+  command.ifStartWith(message.content, config.command_prefix.play_music_start, async args => {
+    if(args.length < 1) throw "Invalid args."
+
+    // 発言者の参加チャンネルへ移動
+    const channel = message.member.voiceChannel;
+    const current_connection = client.voice.connections.get(process.env.DISCORD_GUILD_ID);
+    const should_move = !current_connection || current_connection.channel.id !== channel.id;
+    const conn = should_move ? await channel.join() : current_connection;
+
+    await music.play(conn, args[0])
+  }).catch(err => { errorHandler(message.channel.id, err) })
+
+  // 音楽再生(ループ)
+  command.ifStartWith(message.content, config.command_prefix.play_music_loop_start, async args => {
+    if(args.length < 1) throw "Invalid args."
+
+    // 発言者の参加チャンネルへ移動
+    const channel = message.member.voiceChannel;
+    const current_connection = client.voice.connections.get(process.env.DISCORD_GUILD_ID);
+    const should_move = !current_connection || current_connection.channel.id !== channel.id;
+    const conn = should_move ? await channel.join() : current_connection;
+
+    await music.play(conn, args[0], option={loop: true})
+  }).catch(err => { errorHandler(message.channel.id, err) })
+
+  // 音楽停止
+  command.ifStartWith(message.content, config.command_prefix.play_music_end, async args => {
+    await music.stop()
+  }).catch(err => { errorHandler(message.channel.id, err) })
 
   // リマインダー登録
   command.ifStartWith(message.content, config.command_prefix.reminder_create, async args => {
@@ -277,6 +310,10 @@ function errorHandler(channel_id, err) {
       break
     case "Insufficient remind message":
       speech.msg(channel_id, config.messages.reminder_require_content)
+        .catch(e => {console.error(e)})
+      break
+    case "Invalid youtube url.":
+      speech.msg(channel_id, config.messages.play_music_invalid_youtube_url)
         .catch(e => {console.error(e)})
       break
     default:
