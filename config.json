@@ -34,6 +34,9 @@
       "twitter_pipeline_create": "ついーとみてて",
       "twitter_pipeline_delete": "ついーとわすれて",
       "twitter_pipeline_get": "ついーとみてる？",
+      "play_music_start": "うたって",
+      "play_music_loop_start": "ずっとうたって",
+      "play_music_end": "うたわないで",
       "help": "なにができる？"
     },
     "messages": {
@@ -46,6 +49,7 @@
       "twitter_pipeline_create_success": "みてる！",
       "twitter_pipeline_delete_success": "わすれた！",
       "twitter_pipeline_retry": "ちょっとはんえいまでじかんかかる！",
+      "play_music_invalid_youtube_url": "ようつべのURLおかしいような？",
       "error": "ごめんなさい ちょっとわかんない💦",
       "reject": "ごめんむり...",
       "invalid_arg": "ひきすうがおかしいような...",
