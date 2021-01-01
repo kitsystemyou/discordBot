@@ -15,7 +15,6 @@ Set `PROJECTID`, `ACCESSTOKEN` at Setting -> secret
 ### Usage
 ```
 npm install
-npm install --save twitter
 npm start
 ```
 
