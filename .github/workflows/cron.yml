@@ -1,0 +1,12 @@
+name: cron wake glitch
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: wake glitch
+      run: |
+        curl -H "User-Agent:Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; NP06; rv:11.0) like Gecko" "http://gilded-berry-viola.glitch.me"
